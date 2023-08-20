@@ -72,6 +72,13 @@ fun RestaurantScreen() {
 
 @Composable
 private fun RestaurantItem(item: Restaurant) {
+    var favoriteState by remember {
+        mutableStateOf(false)
+    }
+
+    val icon = if (favoriteState) Icons.Filled.Favorite
+                else Icons.Filled.FavoriteBorder
+
     Card(
         modifier = Modifier.padding(8.dp),
         elevation = CardDefaults.cardElevation(
@@ -90,28 +97,26 @@ private fun RestaurantItem(item: Restaurant) {
                 description = item.description,
                 modifier = Modifier.weight(0.70f),
             )
-            FavoriteIcon(
-                modifier = Modifier.weight(0.15f)
-            )
+            RestaurantIcon(
+                modifier = Modifier.weight(0.15f),
+                icon = icon
+            ) {
+                favoriteState = !favoriteState
+            }
         }
     }
 }
 
 @Composable
-private fun FavoriteIcon(modifier: Modifier = Modifier) {
-    var favoriteState by remember {
-        mutableStateOf(false)
-    }
-
-    val icon = if (favoriteState) Icons.Filled.Favorite
-                else Icons.Filled.FavoriteBorder
-
+private fun FavoriteIcon(modifier: Modifier = Modifier,
+                        icon: ImageVector,
+                        onClick: () -> Unit = {}) {
     Image(
         imageVector = icon,
         contentDescription = "",
         modifier = modifier
             .padding(8.dp)
-            .clickable { favoriteState = !favoriteState },
+            .clickable { onClick() },
     )
 }
 
@@ -134,11 +139,15 @@ private fun RestaurantDetails(
 }
 
 @Composable
-private fun RestaurantIcon(icon: ImageVector, modifier: Modifier = Modifier) {
+private fun RestaurantIcon(icon: ImageVector,
+                           modifier: Modifier = Modifier,
+                           onClick: () -> Unit = {}) {
     Image(
         imageVector = icon,
         contentDescription = null,
-        modifier = modifier.padding(8.dp)
+        modifier = modifier
+            .padding(8.dp)
+            .clickable { onClick() }
     )
 }
 
