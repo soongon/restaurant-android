@@ -57,26 +57,40 @@ fun RestaurantScreen() {
 
     val viewModel: RestaurantsViewModel = viewModel()
 
+//    var stateOfrestaurants by remember {
+//        mutableStateOf(viewModel.getRestaurants())
+//    }
     LazyColumn(
         contentPadding = PaddingValues(
             vertical = 8.dp,
             horizontal = 8.dp
         )
     ) {
-        items(viewModel.getRestaurants()) { restaurant ->
-            RestaurantItem(item = restaurant)
+        items(viewModel.state.value) {restaurant ->
+            RestaurantItem(item = restaurant) {id ->
+                viewModel.toggleFavorite(id)
+            }
         }
+
+//        items(stateOfrestaurants) { restaurant ->
+//            RestaurantItem(item = restaurant) { id ->
+//                val restaurants = stateOfrestaurants.toMutableList();
+//                val itemIndex = restaurants.indexOfFirst { it.id == id }
+//                val restaurant = restaurants[itemIndex]
+//                restaurants[itemIndex] =
+//                    restaurant.copy(isFavorite = !restaurant.isFavorite)
+//                stateOfrestaurants = restaurants
+//            }
+//        }
     }
 }
 
 
 @Composable
-private fun RestaurantItem(item: Restaurant) {
-    var favoriteState by remember {
-        mutableStateOf(false)
-    }
+private fun RestaurantItem(item: Restaurant,
+                           onClick: (id: Int) -> Unit) {
 
-    val icon = if (favoriteState) Icons.Filled.Favorite
+    val icon = if (item.isFavorite) Icons.Filled.Favorite
                 else Icons.Filled.FavoriteBorder
 
     Card(
@@ -101,7 +115,7 @@ private fun RestaurantItem(item: Restaurant) {
                 modifier = Modifier.weight(0.15f),
                 icon = icon
             ) {
-                favoriteState = !favoriteState
+                onClick(item.id)
             }
         }
     }

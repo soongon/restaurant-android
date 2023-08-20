@@ -1,7 +1,7 @@
 package com.example.restaurantapp
 
 data class Restaurant(
-    val id: Int,
+    var id: Int,
     val title: String,
     val description: String,
     val isFavorite: Boolean = false,
