@@ -3,9 +3,9 @@ package com.example.restaurantapp
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
@@ -17,10 +17,10 @@ class RestaurantsViewModel(): ViewModel() {
     // 상태값을 ViewModel 에서 관리
     val state: MutableState<List<Restaurant>> =  mutableStateOf(emptyList())
 
-    val job = Job()
-    private val scope = CoroutineScope(
-        job + Dispatchers.IO
-    )
+    private val errorHandler =
+        CoroutineExceptionHandler { _, exception ->
+            exception.printStackTrace()
+        }
 
     init {
         val retrofit: Retrofit = Retrofit.Builder()
@@ -30,13 +30,8 @@ class RestaurantsViewModel(): ViewModel() {
         restInterface = retrofit.create(RestaurantApiService::class.java)
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        job.cancel()
-    }
-
     fun getRestaurants() {
-        scope.launch {
+        viewModelScope.launch(Dispatchers.IO + errorHandler) {
             val restaurants = restInterface.getRestaurants()
             withContext(Dispatchers.Main) {
                 state.value = restaurants
