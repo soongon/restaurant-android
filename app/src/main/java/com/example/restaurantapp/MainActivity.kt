@@ -56,10 +56,8 @@ class MainActivity : ComponentActivity() {
 fun RestaurantScreen() {
 
     val viewModel: RestaurantsViewModel = viewModel()
+    viewModel.getRestaurants()
 
-//    var stateOfrestaurants by remember {
-//        mutableStateOf(viewModel.getRestaurants())
-//    }
     LazyColumn(
         contentPadding = PaddingValues(
             vertical = 8.dp,
@@ -71,17 +69,6 @@ fun RestaurantScreen() {
                 viewModel.toggleFavorite(id)
             }
         }
-
-//        items(stateOfrestaurants) { restaurant ->
-//            RestaurantItem(item = restaurant) { id ->
-//                val restaurants = stateOfrestaurants.toMutableList();
-//                val itemIndex = restaurants.indexOfFirst { it.id == id }
-//                val restaurant = restaurants[itemIndex]
-//                restaurants[itemIndex] =
-//                    restaurant.copy(isFavorite = !restaurant.isFavorite)
-//                stateOfrestaurants = restaurants
-//            }
-//        }
     }
 }
 

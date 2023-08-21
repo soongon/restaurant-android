@@ -1,8 +1,13 @@
 package com.example.restaurantapp
 
+import com.google.gson.annotations.SerializedName
+
 data class Restaurant(
+    @SerializedName("r_id")
     var id: Int,
+    @SerializedName("r_title")
     val title: String,
+    @SerializedName("r_description")
     val description: String,
     val isFavorite: Boolean = false,
 )
