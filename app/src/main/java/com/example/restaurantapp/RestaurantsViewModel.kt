@@ -3,9 +3,11 @@ package com.example.restaurantapp
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -15,7 +17,10 @@ class RestaurantsViewModel(): ViewModel() {
     // 상태값을 ViewModel 에서 관리
     val state: MutableState<List<Restaurant>> =  mutableStateOf(emptyList())
 
-    private lateinit var restaurantCall: Call<List<Restaurant>>
+    val job = Job()
+    private val scope = CoroutineScope(
+        job + Dispatchers.IO
+    )
 
     init {
         val retrofit: Retrofit = Retrofit.Builder()
@@ -27,30 +32,16 @@ class RestaurantsViewModel(): ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        restaurantCall.cancel()
+        job.cancel()
     }
 
     fun getRestaurants() {
-        restaurantCall = restInterface.getRestaurants()
-        restaurantCall.enqueue(
-            object : Callback<List<Restaurant>> {
-                override fun onResponse(
-                    call: Call<List<Restaurant>>,
-                    response: Response<List<Restaurant>>
-                ) {
-                    response.body()?.let { restaurants ->
-                        state.value = restaurants
-                    }
-                }
-                override fun onFailure(
-                    call: Call<List<Restaurant>>,
-                    t: Throwable
-                ) {
-                    t.printStackTrace()
-                }
-
+        scope.launch {
+            val restaurants = restInterface.getRestaurants()
+            withContext(Dispatchers.Main) {
+                state.value = restaurants
             }
-        )
+        }
     }
 
     // 레스토랑 id 값으로 해당 레스토랑의 isFavorite 값을 변경
