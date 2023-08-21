@@ -11,9 +11,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class RestaurantsViewModel(): ViewModel() {
 
-    private lateinit var restInterface: RestaurantApiService
+    private var restInterface: RestaurantApiService
     // 상태값을 ViewModel 에서 관리
     val state: MutableState<List<Restaurant>> =  mutableStateOf(emptyList())
+
+    private lateinit var restaurantCall: Call<List<Restaurant>>
 
     init {
         val retrofit: Retrofit = Retrofit.Builder()
@@ -23,8 +25,14 @@ class RestaurantsViewModel(): ViewModel() {
         restInterface = retrofit.create(RestaurantApiService::class.java)
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        restaurantCall.cancel()
+    }
+
     fun getRestaurants() {
-        restInterface.getRestaurants().enqueue(
+        restaurantCall = restInterface.getRestaurants()
+        restaurantCall.enqueue(
             object : Callback<List<Restaurant>> {
                 override fun onResponse(
                     call: Call<List<Restaurant>>,
